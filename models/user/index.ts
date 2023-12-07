@@ -1,8 +1,9 @@
-import { Schema, model } from 'mongoose'
+import { CallbackWithoutResultAndOptionalError, Schema, model } from 'mongoose'
+import bcrypt from 'bcrypt'
 
-import { IUser } from './type'
+import { IUser, IUserMethods, UserModel } from './type'
 
-const userSchema = new Schema<IUser>({
+const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   email: { type: String, required: true, unique: true },
   firstName: { type: String, required: true, trim: true },
   lastName: { type: String, required: true, trim: true },
@@ -11,6 +12,19 @@ const userSchema = new Schema<IUser>({
   avatar: String,
 })
 
-const User = model<IUser>('User', userSchema)
+userSchema.pre<IUser>('save', async function (next: CallbackWithoutResultAndOptionalError) {
+  if (!this.isModified('password')) {
+    return next()
+  }
+
+  this.password = bcrypt.hashSync(this.password, 10)
+  next()
+})
+
+userSchema.method('matchPassword', async function (password: string) {
+  return await bcrypt.compare(password, this.password)
+})
+
+const User = model<IUser, UserModel>('User', userSchema)
 
 export default User
