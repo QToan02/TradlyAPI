@@ -10,7 +10,7 @@ export interface IUser extends Document {
 }
 
 export interface IUserMethods {
-  matchPassword: (password: string) => boolean
+  matchPassword: (password: string) => boolean | Promise<boolean>
 }
 
 export type UserModel = Model<IUser, {}, IUserMethods>
