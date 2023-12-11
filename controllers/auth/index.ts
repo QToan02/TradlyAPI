@@ -25,7 +25,7 @@ export const login = async (
   try {
     const { email, password } = request.body
     const findUser: (IUser & IUserMethods) | null = await User.findOne({ email })
-      .select('password')
+      .select('+password')
       .exec()
 
     if (!findUser)
@@ -36,18 +36,23 @@ export const login = async (
     if (!matchPassword)
       return ResponseData.withError(response, 'Wrong credentials, check your email or password')
 
-    const token = generateToken({ id: findUser._id })
+    const token: string = generateToken({ id: findUser._id })
 
-    ResponseData.withSuccess(response, token)
+    ResponseData.withSuccess(
+      response,
+      findUser.toJSON({
+        transform: (_, ret) => ({ ...ret, token }),
+      })
+    )
   } catch (error) {
     if (error instanceof Error) ResponseData.withError(response, error.message)
   }
 }
 
-export const generateToken = (payload: object | string | Buffer): { token: string } => {
+export const generateToken = (payload: object | string | Buffer): string => {
   const token = jwt.sign(payload, process.env.JWT_SECRET as Secret, {
     expiresIn: process.env.JWT_EXPIRE,
   })
 
-  return { token }
+  return token
 }
