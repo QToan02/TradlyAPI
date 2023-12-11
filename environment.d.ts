@@ -1,3 +1,5 @@
+import { Secret } from 'jsonwebtoken'
+
 export {}
 
 declare global {
@@ -5,8 +7,9 @@ declare global {
     interface ProcessEnv {
       ATLAS_URI: string
       PORT: string
-      JWT_SECRET: string
+      JWT_SECRET: Secret
       JWT_EXPIRE: string
+      SECRET: string
     }
   }
 }

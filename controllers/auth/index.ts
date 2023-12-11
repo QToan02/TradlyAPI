@@ -1,6 +1,6 @@
 import { Response } from 'express'
 import { HydratedDocument } from 'mongoose'
-import jwt from 'jsonwebtoken'
+import jwt, { Secret } from 'jsonwebtoken'
 
 import { IUser, IUserMethods } from '../../models/user/type'
 import User from '../../models/user'
@@ -36,7 +36,7 @@ export const login = async (
     if (!matchPassword)
       return ResponseData.withError(response, 'Wrong credentials, check your email or password')
 
-    const token = generateToken(findUser)
+    const token = generateToken({ id: findUser._id })
 
     ResponseData.withSuccess(response, token)
   } catch (error) {
@@ -45,7 +45,9 @@ export const login = async (
 }
 
 export const generateToken = (payload: object | string | Buffer): { token: string } => {
-  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE })
+  const token = jwt.sign(payload, process.env.JWT_SECRET as Secret, {
+    expiresIn: process.env.JWT_EXPIRE,
+  })
 
   return { token }
 }
