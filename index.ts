@@ -11,10 +11,12 @@ const port = process.env.PORT || 8000
 connectDB()
 
 app.use(express.json())
+app.use(cors())
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to TradlyAPI')
 })
 app.use('/auth', require('./routes/auth'))
+app.use('/api', require('./routes/address'))
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)
