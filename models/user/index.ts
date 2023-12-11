@@ -3,14 +3,17 @@ import bcrypt from 'bcrypt'
 
 import { IUser, IUserMethods, UserModel } from './type'
 
-const userSchema = new Schema<IUser, UserModel, IUserMethods>({
-  email: { type: String, required: true, unique: true },
-  firstName: { type: String, required: true, trim: true },
-  lastName: { type: String, required: true, trim: true },
-  password: { type: String, required: true },
-  phone: { type: String, required: true },
-  avatar: String,
-})
+const userSchema = new Schema<IUser, UserModel, IUserMethods>(
+  {
+    email: { type: String, required: true, unique: true },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    password: { type: String, required: true },
+    phone: { type: String, required: true },
+    avatar: String,
+  },
+  { timestamps: true }
+)
 
 userSchema.pre<IUser>('save', async function (next: CallbackWithoutResultAndOptionalError) {
   if (!this.isModified('password')) {
