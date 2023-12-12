@@ -19,6 +19,7 @@ app.use('/auth', require('./routes/auth'))
 app.use('/api', require('./routes/address'))
 app.use('/api', require('./routes/card'))
 app.use('/api', require('./routes/category'))
+app.use('/api', require('./routes/store'))
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)
