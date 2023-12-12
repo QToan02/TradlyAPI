@@ -29,7 +29,7 @@ export const add = async (request: IRequest<IStore>, response: Response) => {
 
 export const find = async (request: Request<Pick<IStore, 'id'>>, response: Response) => {
   try {
-    const store: IStore | null = await Store.findById(request.params.id).populate('user').exec()
+    const store: IStore | null = await Store.findById(request.params.id)
     if (!store)
       return ResponseData.withError(response, "Can't find item match with provided ID", 404)
 
