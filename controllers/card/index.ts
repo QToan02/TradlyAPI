@@ -19,7 +19,7 @@ export const get = async (_: Request, response: Response) => {
 export const add = async (request: IRequest<ICard>, response: Response) => {
   try {
     const card: HydratedDocument<ICard> = new Card(request.body)
-    console.log(request.body)
+
     await card.save()
     ResponseData.withSuccess(response, card)
   } catch (error) {
