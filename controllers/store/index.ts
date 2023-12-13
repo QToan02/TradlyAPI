@@ -4,7 +4,7 @@ import { HydratedDocument, ModifyResult } from 'mongoose'
 import { IStore } from '../../models/store/type'
 import Store from '../../models/store'
 import { IRequest } from '../../types'
-import { ResponseData } from '../../util'
+import { ResponseData } from '../../utils'
 
 export const get = async (_: Request, response: Response) => {
   try {

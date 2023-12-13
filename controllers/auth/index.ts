@@ -5,7 +5,7 @@ import jwt, { Secret } from 'jsonwebtoken'
 import { IUser, IUserMethods } from '../../models/user/type'
 import User from '../../models/user'
 import { IRequest } from '../../types'
-import { ResponseData, sendMail } from '../../util'
+import { ResponseData, sendMail } from '../../utils'
 import { confirmEmailTemplate } from '../../templates/mail'
 
 export const register = async (request: IRequest<IUser>, response: Response) => {

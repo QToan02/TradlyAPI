@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 
 import Category from '../../models/category'
 import { ICategory } from '../../models/category/type'
-import { ResponseData } from '../../util'
+import { ResponseData } from '../../utils'
 
 export const get = async (_: Request, response: Response) => {
   try {

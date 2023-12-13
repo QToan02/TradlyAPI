@@ -4,7 +4,7 @@ import { HydratedDocument, ModifyResult } from 'mongoose'
 import { IProduct } from '../../models/product/type'
 import Product from '../../models/product'
 import { IRequest } from '../../types'
-import { ResponseData } from '../../util'
+import { ResponseData } from '../../utils'
 
 export const get = async (request: Request, response: Response) => {
   const pageNumber: number = parseInt(request.query.pageNumber as string) || 1
