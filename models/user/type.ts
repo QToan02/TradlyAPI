@@ -7,6 +7,7 @@ export interface IUser extends Document {
   phone: string
   password: string
   avatar?: string
+  status: 'active' | 'in-active'
 }
 
 export interface IUserMethods {

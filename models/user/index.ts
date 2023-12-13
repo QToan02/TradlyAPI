@@ -11,6 +11,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     password: { type: String, required: true },
     phone: { type: String, required: true },
     avatar: String,
+    status: { type: String, enum: ['active', 'in-active'], default: 'in-active' },
   },
   { timestamps: true }
 )

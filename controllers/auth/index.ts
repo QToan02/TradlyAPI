@@ -5,11 +5,15 @@ import jwt, { Secret } from 'jsonwebtoken'
 import { IUser, IUserMethods } from '../../models/user/type'
 import User from '../../models/user'
 import { IRequest } from '../../types'
-import { ResponseData } from '../../util'
+import { ResponseData, sendMail } from '../../util'
+import { confirmEmailTemplate } from '../../templates/mail'
 
 export const register = async (request: IRequest<IUser>, response: Response) => {
+  const { email, firstName } = request.body
+
   try {
     const user: HydratedDocument<IUser> = new User(request.body)
+    sendMail(email, 'Confirm account information!!!', confirmEmailTemplate(firstName, ''))
 
     await user.save()
     ResponseData.withSuccess(response, user)
