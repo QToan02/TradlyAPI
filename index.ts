@@ -21,6 +21,7 @@ app.use('/api', require('./routes/card'))
 app.use('/api', require('./routes/category'))
 app.use('/api', require('./routes/store'))
 app.use('/api', require('./routes/product'))
+app.use('/api', require('./routes/order'))
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`)
