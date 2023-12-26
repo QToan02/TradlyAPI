@@ -1,6 +1,9 @@
 import { Document } from 'mongoose'
+
 import { IProduct } from '../product/type'
 import { IUser } from '../user/type'
+import { IAddress } from '../address/type'
+import { ICard } from '../card/type'
 
 export interface IOrderProduct extends IProduct {
   quantity: number
@@ -11,5 +14,12 @@ export interface IOrder extends Document {
   user: IUser
   rating: number
   total: number
-  status: 'order placed' | 'payment confirmed' | 'processed' | 'delivered'
+  address: IAddress
+  payment: ICard | string
+  status: 'order placed' | 'payment confirmed' | 'processed' | 'delivered' | 'cancelled'
+}
+
+export interface IOrderRequestBody extends Omit<IOrder, 'product'> {
+  productId: string[]
+  quantity: number[]
 }

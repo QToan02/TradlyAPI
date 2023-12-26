@@ -1,22 +1,22 @@
 import { Request, Response } from 'express'
 import { HydratedDocument } from 'mongoose'
 
-import { IOrder, IOrderProduct } from '../../models/order/type'
+import { IOrder, IOrderProduct, IOrderRequestBody } from '../../models/order/type'
 import { IProduct } from '../../models/product/type'
 import { IRequest } from '../../types'
 import { ResponseData } from '../../utils'
 import Order from '../../models/order'
 import Product from '../../models/product'
 
-export const add = async (request: IRequest<IOrder>, response: Response) => {
-  const { product, ...rest } = request.body
+export const add = async (request: IRequest<IOrderRequestBody>, response: Response) => {
+  const { productId, quantity, ...rest } = request.body
   const productData: IProduct[] = []
 
   try {
     // TODO: Refactor to Promise.all
     // Get all product information in product array based on _id
-    for (const item of product) {
-      const result: IProduct | null = await Product.findById(item._id)
+    for (const id of productId) {
+      const result: IProduct | null = await Product.findById(id)
         .select(['name', 'img', 'price', 'discountPrice'])
         .exec()
 
@@ -26,17 +26,20 @@ export const add = async (request: IRequest<IOrder>, response: Response) => {
     }
 
     // Check error when miss match array data
-    if (product.length !== productData.length)
+    if (productId.length !== productData.length || quantity.length !== productData.length)
       return ResponseData.withError(
         response,
         "There's error in adding process, please try again later"
       )
 
     // Merge product information to request.body.product
-    const newProductData = product.map((item: IOrderProduct, index: number) => ({
-      ...item,
-      ...productData[index],
-    }))
+    const newProductData: IOrderProduct[] = productData.map(
+      (item: IProduct, index: number) =>
+        ({
+          ...item,
+          ...{ quantity: quantity[index] },
+        } as IOrderProduct)
+    )
 
     const order: HydratedDocument<IOrder> = new Order({ ...rest, product: newProductData })
 
