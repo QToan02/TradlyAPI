@@ -225,8 +225,3 @@ const getPredictedRating = (ratingsRowVector: (number | null)[], cosineSimilarit
 
   return (denominator !== 0 ? numerator / Math.sqrt(denominator) : 0)
 }
-
-export const test = async (request: Request, response: Response)  => {
-  const matrix: number[] = [0, 1, 2, 3, 4]
-  ResponseData.withSuccess(response, { data: mathjs.mean(matrix) })
-}
