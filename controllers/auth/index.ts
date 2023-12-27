@@ -4,7 +4,7 @@ import jwt, { Secret } from 'jsonwebtoken'
 
 import { IUser, IUserMethods } from '../../models/user/type'
 import User from '../../models/user'
-import { IRequest } from '../../types'
+import { IRequest, TToken } from '../../types'
 import { ResponseData, sendMail } from '../../utils'
 import { confirmEmailTemplate } from '../../templates/mail'
 
@@ -15,8 +15,15 @@ export const register = async (request: IRequest<IUser>, response: Response) => 
     const user: HydratedDocument<IUser> = new User(request.body)
     sendMail(email, 'Confirm account information!!!', confirmEmailTemplate(firstName, ''))
 
+    const token: TToken = generateToken({ id: user._id })
+
     await user.save()
-    ResponseData.withSuccess(response, user)
+    ResponseData.withSuccess(
+      response,
+      user.toJSON({
+        transform: (_, ret) => ({ ...ret, ...token }),
+      })
+    )
   } catch (error) {
     if (error instanceof Error) ResponseData.withError(response, error.message)
   }
@@ -40,12 +47,12 @@ export const login = async (
     if (!matchPassword)
       return ResponseData.withError(response, 'Wrong credentials, check your email or password')
 
-    const token: string = generateToken({ id: findUser._id })
+    const token: TToken = generateToken({ id: findUser._id })
 
     ResponseData.withSuccess(
       response,
       findUser.toJSON({
-        transform: (_, ret) => ({ ...ret, token }),
+        transform: (_, ret) => ({ ...ret, ...token }),
       })
     )
   } catch (error) {
@@ -53,10 +60,14 @@ export const login = async (
   }
 }
 
-export const generateToken = (payload: object | string | Buffer): string => {
-  const token = jwt.sign(payload, process.env.JWT_SECRET as Secret, {
+export const generateToken = (payload: object | string | Buffer): TToken => {
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET as Secret, {
     expiresIn: process.env.JWT_EXPIRE,
   })
 
-  return token
+  const refreshToken = jwt.sign(payload, process.env.SECRET as Secret, {
+    expiresIn: process.env.EXPIRE,
+  })
+
+  return { accessToken, refreshToken }
 }
