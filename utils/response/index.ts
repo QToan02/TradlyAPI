@@ -16,7 +16,7 @@ export class ResponseData {
 
   static withError(
     res: Response,
-    message: string = 'Internal Server Error',
+    message: string = 'Something happen in requesting process',
     statusCode: number = 500
   ) {
     res.status(statusCode).json({
