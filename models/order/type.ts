@@ -5,6 +5,13 @@ import { IUser } from '../user/type'
 import { IAddress } from '../address/type'
 import { ICard } from '../card/type'
 
+export type TOrderStatus =
+  | 'order placed'
+  | 'payment confirmed'
+  | 'processed'
+  | 'delivered'
+  | 'cancelled'
+
 export interface IOrderProduct extends IProduct {
   quantity: number
 }
@@ -16,7 +23,7 @@ export interface IOrder extends Document {
   total: number
   address: IAddress
   payment: ICard | string
-  status: 'order placed' | 'payment confirmed' | 'processed' | 'delivered' | 'cancelled'
+  status: TOrderStatus
 }
 
 export interface IOrderRequestBody extends Omit<IOrder, 'product'> {

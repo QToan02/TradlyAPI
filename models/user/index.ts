@@ -10,7 +10,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     lastName: { type: String, required: true, trim: true },
     password: { type: String, required: true },
     phone: { type: String, required: true },
-    avatar: String,
+    avatar: { type: String, default: 'https://i.imgur.com/dM7Thhn.png' },
     status: { type: String, enum: ['active', 'in-active'], default: 'in-active' },
   },
   { timestamps: true }

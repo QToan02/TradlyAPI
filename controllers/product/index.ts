@@ -54,8 +54,10 @@ export const add = async (request: IRequest<IProduct>, response: Response) => {
 }
 
 export const find = async (request: Request<Pick<IProduct, 'id'>>, response: Response) => {
+  const expand = request.query._expand as string | string[]
+
   try {
-    const product: IProduct | null = await Product.findById(request.params.id)
+    const product: IProduct | null = await Product.findById(request.params.id).populate(expand)
     if (!product)
       return ResponseData.withError(response, "Can't find item match with provided ID", 404)
 

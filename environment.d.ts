@@ -10,6 +10,7 @@ declare global {
       JWT_SECRET: Secret
       JWT_EXPIRE: string
       SECRET: string
+      EXPIRE: string
       MAIL_HOST: string
       MAIL_USER: string
       MAIL_PASS: string
