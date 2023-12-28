@@ -8,8 +8,12 @@ import { ResponseData } from '../../utils'
 
 export const get = async (request: Request, response: Response) => {
   const user = request.query.user as string | string[]
+
   try {
-    const wishlists: IWishlist[] = await Wishlist.find({ user })
+    const wishlists: IWishlist[] = await Wishlist.find({ user }).populate({
+      path: 'product',
+      populate: { path: 'store' },
+    })
 
     ResponseData.withSuccess(response, wishlists)
   } catch (error) {
@@ -22,7 +26,15 @@ export const add = async (request: IRequest<IWishlist>, response: Response) => {
     const wishlist: HydratedDocument<IWishlist> = new Wishlist(request.body)
 
     await wishlist.save()
-    ResponseData.withSuccess(response, wishlist)
+
+    const fonded: IWishlist[] | null = await Wishlist.findById(wishlist._id).populate({
+      path: 'product',
+      populate: { path: 'store' },
+    })
+
+    if (!fonded) return ResponseData.withError(response, 'Error in saving process')
+
+    ResponseData.withSuccess(response, fonded)
   } catch (error) {
     if (error instanceof Error) ResponseData.withError(response, error.message)
   }
