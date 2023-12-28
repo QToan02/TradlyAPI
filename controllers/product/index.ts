@@ -16,6 +16,8 @@ export const get = async (request: Request, response: Response) => {
   const pageNumber: number = parseInt(request.query.pageNumber as string) || 1
   const pageSize: number = parseInt(request.query.pageSize as string) || 10
   const expand = request.query._expand as string | string[]
+  const store = request.query.store as string
+  const searchQuery = store ? { store } : {}
 
   try {
     const currentPage: number = pageNumber > 0 ? pageNumber : 1
@@ -23,7 +25,7 @@ export const get = async (request: Request, response: Response) => {
 
     const totalProducts: number = await Product.countDocuments() // Get total number of products
 
-    const products: IProduct[] = await Product.find()
+    const products: IProduct[] = await Product.find(searchQuery)
       .populate(expand) // Expand document based on expand value
       .skip((currentPage - 1) * itemsPerPage) // Skip items based on current page
       .limit(itemsPerPage) // Limit items per page
