@@ -117,7 +117,9 @@ export const getRecommended = async (request: Request, response: Response) => {
 
     const totalProducts: number = await Product.countDocuments()
 
-    const recommendedProducts: IProduct[] = (await recommendProducts(request.query.userId as string, k, expand)).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    const recommendedProducts: IProduct[] = (
+      await recommendProducts(request.query.userId as string, k, expand)
+    ).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     const totalPages: number = Math.ceil(totalProducts / itemsPerPage)
 
@@ -133,7 +135,11 @@ export const getRecommended = async (request: Request, response: Response) => {
   }
 }
 
-const recommendProducts = async (userId: string, k: number, expand: string | string[]): Promise<IProduct[]> => {
+const recommendProducts = async (
+  userId: string,
+  k: number,
+  expand: string | string[]
+): Promise<IProduct[]> => {
   const orders: IOrder[] = await Order.find()
   const products: IProduct[] = await Product.find().populate(expand)
   const users: IUser[] = await User.find()
@@ -146,8 +152,12 @@ const recommendProducts = async (userId: string, k: number, expand: string | str
   for (let i = 0; i < usersLength; i++) {
     matrix[i] = []
     for (let j = 0; j < productsLength; j++) {
-      const userOrders: IOrder[] = orders.filter(order => order.user._id.equals(users[i]._id) && order.product.some(p => p._id.equals(products[j]._id)))
-      const ratings: number[] = userOrders.map(order => order.rating)
+      const userOrders: IOrder[] = orders.filter(
+        (order) =>
+          order.user._id.equals(users[i]._id) &&
+          order.product.some((p) => p._id.equals(products[j]._id))
+      )
+      const ratings: number[] = userOrders.map((order) => order.rating)
       const averageRating: number = ratings.length > 0 ? mathjs.mean(ratings) : 0
       matrix[i][j] = averageRating
     }
@@ -157,13 +167,19 @@ const recommendProducts = async (userId: string, k: number, expand: string | str
   const normalizedMatrix: number[][] = meanNormalizeByRowVector(matrix)
   const userRatingsRowVector: number[] = normalizedMatrix[userIndex]
 
-  const cosineSimilarityRowVector: (number | null)[] = getCosineSimilarityRowVector(normalizedMatrix, userIndex)
+  const cosineSimilarityRowVector: (number | null)[] = getCosineSimilarityRowVector(
+    normalizedMatrix,
+    userIndex
+  )
 
   const predictedRatings: {
     score: number
     productIndex: number
   }[] = userRatingsRowVector.map((rating, productIndex) => {
-    const productRatingsRowVector: (number | null)[] = getProductRatingsRowVector(normalizedMatrix, productIndex)
+    const productRatingsRowVector: (number | null)[] = getProductRatingsRowVector(
+      normalizedMatrix,
+      productIndex
+    )
 
     let score: number
     if (rating === 0) {
@@ -177,19 +193,21 @@ const recommendProducts = async (userId: string, k: number, expand: string | str
 
   predictedRatings.sort((a, b) => b.score - a.score)
 
-  const recommendedProducts: IProduct[] = predictedRatings.map(rating => products[rating.productIndex])
+  const recommendedProducts: IProduct[] = predictedRatings.map(
+    (rating) => products[rating.productIndex]
+  )
 
   return recommendedProducts
 }
 
 const getMean = (rowVector: number[]): number => {
-  const valuesWithoutZeroes: number[] = rowVector.filter(cell => cell !== 0)
+  const valuesWithoutZeroes: number[] = rowVector.filter((cell) => cell !== 0)
   return valuesWithoutZeroes.length ? mathjs.mean(valuesWithoutZeroes) : 0
 }
 
 const meanNormalizeByRowVector = (matrix: number[][]) => {
   return matrix.map((rowVector) => {
-    return rowVector.map(cell => {
+    return rowVector.map((cell) => {
       return cell !== 0 ? cell - getMean(rowVector) : cell
     })
   })
@@ -201,19 +219,26 @@ const getCosineSimilarityRowVector = (matrix: number[][], index: number): (numbe
   })
 }
 
-const getProductRatingsRowVector = (userBasedMatrix: number[][], productIndex: number): (number | null)[] => {
-  return userBasedMatrix.map(userRatings => {
+const getProductRatingsRowVector = (
+  userBasedMatrix: number[][],
+  productIndex: number
+): (number | null)[] => {
+  return userBasedMatrix.map((userRatings) => {
     return userRatings[productIndex]
   })
 }
 
-const getPredictedRating = (ratingsRowVector: (number | null)[], cosineSimilarityRowVector: (number | null)[], k: number): number => {
+const getPredictedRating = (
+  ratingsRowVector: (number | null)[],
+  cosineSimilarityRowVector: (number | null)[],
+  k: number
+): number => {
   const neighborSelection: {
     similarity: number | null
     rating: number | null
   }[] = cosineSimilarityRowVector
     .map((similarity, index) => ({ similarity, rating: ratingsRowVector[index] }))
-    .filter(value => value.similarity !== null && value.rating !== null && value.rating !== 0)
+    .filter((value) => value.similarity !== null && value.rating !== null && value.rating !== 0)
     .sort((a, b) => (b.similarity as number) - (a.similarity as number))
     .slice(0, k)
 
@@ -225,5 +250,5 @@ const getPredictedRating = (ratingsRowVector: (number | null)[], cosineSimilarit
     return result + (value.similarity as number) ** 2
   }, 0)
 
-  return (denominator !== 0 ? numerator / Math.sqrt(denominator) : 0)
+  return denominator !== 0 ? numerator / Math.sqrt(denominator) : 0
 }
