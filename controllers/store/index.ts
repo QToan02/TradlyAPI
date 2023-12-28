@@ -6,9 +6,12 @@ import Store from '../../models/store'
 import { IRequest } from '../../types'
 import { ResponseData } from '../../utils'
 
-export const get = async (_: Request, response: Response) => {
+export const get = async (request: Request, response: Response) => {
+  const user = request.query.user as string
+  const searchQuery = user ? { user } : {}
+
   try {
-    const stores: IStore[] = await Store.find({})
+    const stores: IStore[] = await Store.find(searchQuery)
 
     ResponseData.withSuccess(response, stores)
   } catch (error) {
