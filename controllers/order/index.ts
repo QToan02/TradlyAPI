@@ -8,6 +8,17 @@ import { ResponseData } from '../../utils'
 import Order from '../../models/order'
 import Product from '../../models/product'
 
+export const get = async (request: Request, response: Response) => {
+  const user = request.query.user as string | string[]
+  try {
+    const orders: IOrder[] = await Order.find({ user })
+
+    ResponseData.withSuccess(response, orders)
+  } catch (error) {
+    if (error instanceof Error) ResponseData.withError(response, error.message)
+  }
+}
+
 export const add = async (request: IRequest<IOrderRequestBody>, response: Response) => {
   const { productId, quantity, ...rest } = request.body
   const productData: IProduct[] = []
@@ -53,6 +64,8 @@ export const add = async (request: IRequest<IOrderRequestBody>, response: Respon
 export const find = async (request: Request<Pick<IOrder, 'id'>>, response: Response) => {
   try {
     const order: IOrder | null = await Order.findById(request.params.id)
+      .populate(['address', 'payment'])
+      .exec()
 
     if (!order)
       return ResponseData.withError(response, "Can't find order match with provided ID", 404)
